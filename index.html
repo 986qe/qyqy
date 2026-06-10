@@ -3,172 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>袁沁的动态个人世界</title>
+    <title>袁沁的SecreT</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- 鼠标跟随光圈 -->
-    <div class="cursor-light" id="cursorLight"></div>
+    <!-- 粒子背景 -->
+    <div id="particles-container"></div>
     
-    <!-- 星星粒子层 -->
-    <div class="stars-layer"></div>
-    
-    <!-- 深海气泡 -->
-    <div class="bubbles-container" id="bubbles"></div>
-    
-    <!-- 扫描线效果 -->
-    <div class="glitch-bg"></div>
-
     <!-- 导航栏 -->
     <nav id="navbar">
-        <a href="#home">首页</a>
-        <a href="#piano">钢琴</a>
-        <a href="#subnautica">深海迷航</a>
-        <a href="#music">音乐</a>
-        <a href="#skills">技能</a>
-        <a href="#contact">联系</a>
+        <div class="nav-logo">袁沁_</div>
+        <ul class="nav-links">
+            <li><a href="#hero">首页</a></li>
+            <li><a href="#about">关于</a></li>
+            <li><a href="#hobbies">爱好</a></li>
+            <li><a href="#piano">钢琴</a></li>
+            <li><a href="#ocean">深海</a></li>
+            <li><a href="#music">音乐</a></li>
+        </ul>
     </nav>
 
-    <!-- 首页英雄区 -->
-    <div class="hero" id="home">
-        <div class="hero-card">
-            <div class="cyber-frame">
-                <div class="glitch-wrapper">
-                    <h1 class="glitch" data-text="袁沁的个人世界">袁沁的个人世界</h1>
-                </div>
+    <!-- 英雄区 -->
+    <section id="hero">
+        <div class="hero-content">
+            <h1 class="glitch" data-text="袁沁的SecreT">袁沁的SecreT</h1>
+            <p class="hero-subtitle">// 钢琴手 | 深海潜水员 | 音乐信徒 //</p>
+            <div class="scroll-indicator">
+                <span>↓ 向下探索 ↓</span>
             </div>
-            <div class="typing" id="typing"></div>
-            <p>
-                一个在黑白键上蹦迪、在深海里潜水、在音浪中冲浪的碳基生物。
-                欢迎来到我的赛博小窝，这里不生产焦虑，只制造快乐！
-            </p>
-            <a class="btn" href="#piano">探索我的世界</a>
         </div>
-    </div>
+    </section>
+
+    <!-- 终端自我介绍 -->
+    <section id="about">
+        <div class="terminal">
+            <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span class="terminal-title">yuanqin@cyber:~</span>
+            </div>
+            <div class="terminal-body" id="terminal-content">
+                <!-- 打字机内容将由JS生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 爱好导航卡片 -->
+    <section id="hobbies">
+        <h2 class="section-title glitch" data-text="MY HOBBIES">MY HOBBIES</h2>
+        <div class="hobby-cards">
+            <div class="hobby-card" data-target="piano">
+                <div class="card-icon">🎹</div>
+                <h3>钢琴</h3>
+                <p>黑白键上的赛博狂想曲</p>
+            </div>
+            <div class="hobby-card" data-target="ocean">
+                <div class="card-icon">🌊</div>
+                <h3>深海迷航</h3>
+                <p>在20000海里下找点乐子</p>
+            </div>
+            <div class="hobby-card" data-target="music">
+                <div class="card-icon">🎵</div>
+                <h3>音乐</h3>
+                <p>频率与灵魂共振的实验</p>
+            </div>
+        </div>
+    </section>
 
     <!-- 钢琴互动区 -->
-    <section class="section reveal" id="piano">
-        <div class="section-inner">
-            <h2>🎹 指尖蹦迪区</h2>
-            <p>别人敲代码，我敲琴键！黑白键是我的专属舞台，指尖在上面疯狂蹦迪。点击下方琴键，来一场视听盛宴吧～ 温馨提示：邻居可能以为我在装修，但我知道，我是在用艺术改变世界！</p>
-            <div class="piano-keys">
-                <div class="key white" data-note="0"></div>
-                <div class="key black" data-note="1"></div>
-                <div class="key white" data-note="2"></div>
-                <div class="key black" data-note="3"></div>
-                <div class="key white" data-note="4"></div>
-                <div class="key white" data-note="5"></div>
-                <div class="key black" data-note="6"></div>
-                <div class="key white" data-note="7"></div>
-                <div class="key black" data-note="8"></div>
-                <div class="key white" data-note="9"></div>
-                <div class="key black" data-note="10"></div>
-                <div class="key white" data-note="11"></div>
+    <section id="piano">
+        <h2 class="section-title glitch" data-text="88-KEY CYBER PIANO">88-KEY CYBER PIANO</h2>
+        <p class="section-desc">// 88键全尺寸钢琴 | 点击/触摸/键盘弹奏 | 键盘Q→M依次对应音符 //</p>
+        <div class="piano-scroll-wrapper">
+            <div class="piano-container">
+                <div class="piano">
+                    <div class="piano-keys" id="pianoKeys">
+                        <!-- 由JS动态生成88键 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="piano-info">
+            <span class="piano-octave-label" id="octaveLabel">当前键盘范围: 全部 (A0 - C8)</span>
+        </div>
+        <div class="keyboard-guide">
+            <div class="keyboard-row">
+                <div class="key-row">
+                    <span class="guide-key">1</span><span class="guide-key">2</span><span class="guide-key">3</span><span class="guide-key">4</span><span class="guide-key">5</span><span class="guide-key">6</span><span class="guide-key">7</span><span class="guide-key">8</span><span class="guide-key">9</span><span class="guide-key">0</span>
+                </div>
+                <div class="guide-note">C4</div>
+            </div>
+            <div class="keyboard-row">
+                <div class="key-row">
+                    <span class="guide-key">Q</span><span class="guide-key">W</span><span class="guide-key">E</span><span class="guide-key">R</span><span class="guide-key">T</span><span class="guide-key">Y</span><span class="guide-key">U</span><span class="guide-key">I</span><span class="guide-key">O</span><span class="guide-key">P</span>
+                </div>
+                <div class="guide-note">C4 D4 E4 F4 G4 A4 B4 C5 D5 E5</div>
+            </div>
+            <div class="keyboard-row">
+                <div class="key-row">
+                    <span class="guide-key">A</span><span class="guide-key">S</span><span class="guide-key">D</span><span class="guide-key">F</span><span class="guide-key">G</span><span class="guide-key">H</span><span class="guide-key">J</span><span class="guide-key">K</span><span class="guide-key">L</span>
+                </div>
+                <div class="guide-note">F#4 G#4 A#4 C5 D5 E5 F#5 G#5 A#5</div>
+            </div>
+            <div class="keyboard-row">
+                <div class="key-row">
+                    <span class="guide-key">Z</span><span class="guide-key">X</span><span class="guide-key">C</span><span class="guide-key">V</span><span class="guide-key">B</span><span class="guide-key">N</span><span class="guide-key">M</span>
+                </div>
+                <div class="guide-note">B4 C5 D5 E5 F5 G5 A5</div>
             </div>
         </div>
     </section>
 
     <!-- 深海迷航区 -->
-    <section class="section reveal subnautica-section" id="subnautica">
-        <div class="section-inner">
-            <h2>🌊 深海迷航基地</h2>
-            <p>欢迎来到我的水下世界！在深海迷航里，我是个披着宇航员外衣的海洋生物学家。白天在陆地上弹钢琴，晚上潜入4500米深海和利维坦跳舞。这里没有KPI，只有氧气值和好奇心！点击下方的潜水深度计，看看我能潜多深...</p>
-            
-            <div class="depth-meter" id="depthMeter">
-                <div class="depth-label">当前潜水深度</div>
-                <div class="depth-value" id="depthValue">0m</div>
-                <div class="depth-bar">
-                    <div class="depth-progress" id="depthProgress"></div>
-                </div>
-                <div class="depth-markers">
-                    <span>0m</span>
-                    <span>500m</span>
-                    <span>1000m</span>
-                    <span>2000m</span>
-                    <span>4500m</span>
-                </div>
+    <section id="ocean">
+        <h2 class="section-title glitch" data-text="DEEP DIVE">DEEP DIVE</h2>
+        <div class="depth-meter">
+            <div class="depth-label">潜水深度</div>
+            <div class="depth-bar">
+                <div class="depth-fill"></div>
             </div>
-
-            <div class="ascii-art">
-                <pre>
-    ╱|、
-   (˚ˎ 。7  
-    |、˜〵          
-    じしˍ,)ノ  ~ 发现新物种！</pre>
+            <div class="depth-value">0m / 20000m</div>
+        </div>
+        <div class="ocean-content">
+            <pre class="ascii-art">
+     .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .    .        . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\ ########          :######## :/
+  .        .+ :: : -.:\ ########       . ########.:/
+    .  .+   . . . . :.:\. #######       #######..:/
+      :: . . . . ::.:..:.\           .   .   ..:/
+   .   .   .  .. :  -::::.\.       | |     . .:/
+      .  :  .  .  .-:.":.::.:\             .:/
+</pre>
+            <div class="ocean-text">
+                <p>"在深海的黑暗中，我发现了一个秘密：压力越大，越要发光。"</p>
+                <p>—— 一个不愿上岸的赛博潜水员</p>
             </div>
-            <div class="subnautica-quote">"海洋是最后的 frontier，而我是那个带着钢琴去潜海的疯子"</div>
         </div>
     </section>
 
     <!-- 音乐律动区 -->
-    <section class="section reveal" id="music">
-        <div class="section-inner">
-            <h2>🎵 音乐迪厅</h2>
-            <p>音乐是我的灵魂充电站！在音乐里我是自由的灵魂冲浪手，跟着节奏一起摇摆～耳机一戴，谁都不爱，音乐一响，快乐登场！我的歌单里可能有古典乐和电子乐的奇妙混搭，别问，问就是在创作新的音乐流派！</p>
-            
-            <div class="waveform">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            <div class="music-tag">🎧 正在播放：袁沁的脑内BGM</div>
+    <section id="music">
+        <h2 class="section-title glitch" data-text="SOUND WAVES">SOUND WAVES</h2>
+        <div class="wave-container">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
         </div>
-    </section>
-
-    <!-- 技能区 -->
-    <section class="section reveal" id="skills">
-        <div class="section-inner">
-            <h2>⚡ 我的技能</h2>
-            <div class="skills-box">
-                <div class="skill-item">
-                    <div class="skill-name">🎹 钢琴演奏</div>
-                    <div class="bar"><span data-width="95%"></span></div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-name">🌊 深海探索</div>
-                    <div class="bar"><span data-width="90%"></span></div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-name">🎵 音乐鉴赏</div>
-                    <div class="bar"><span data-width="85%"></span></div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-name">🎮 游戏操作</div>
-                    <div class="bar"><span data-width="80%"></span></div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-name">🎭 抽象整活</div>
-                    <div class="bar"><span data-width="100%"></span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 联系区 -->
-    <section class="section reveal contact-section" id="contact">
-        <div class="section-inner contact">
-            <h2>📡 联系我</h2>
-            <p>欢迎通过以下方式联系我，或者直接在赛博空间里搜索我：</p>
-            <div class="contact-links">
-                <a href="mailto:yuanqin@example.com" class="contact-btn">邮箱</a>
-                <a href="#" class="contact-btn">B站</a>
-                <a href="#" class="contact-btn">音乐主页</a>
-            </div>
+        <div class="music-quote">
+            <p>"音乐不是娱乐，是生存方式。"</p>
+            <p class="quote-author">—— 袁沁</p>
         </div>
     </section>
 
     <!-- 页脚 -->
-    <footer>
-        <div class="cyber-line"></div>
-        <p>© 2024 袁沁的个人世界 | 保持好奇，永远有趣 | 系统持续更新中...</p>
-        <div class="matrix-rain" id="matrixRain"></div>
+    <footer id="footer">
+        <div class="footer-content">
+            <p>© 2024 袁沁 | Built with 💻 and 🎹</p>
+            <p class="easter-egg-hint">// 试试 ↑↑↓↓←→←→BA //</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>

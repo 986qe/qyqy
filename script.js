@@ -1,244 +1,432 @@
-document.addEventListener('DOMContentLoaded', () => {
-    createMatrixRain();
-    createParticles();
-    createBubbles();
-    addPianoInteraction();
-    addScrollAnimations();
-    addDepthMeterInteraction();
-});
-
+// ========== 粒子背景系统 ==========
 function createParticles() {
-    const container = document.getElementById('particles');
-    const particleCount = 30;
+    const container = document.getElementById('particles-container');
+    const particleCount = 25;
     
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 10 + 's';
-        particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+        particle.classList.add('particle');
         
-        if (Math.random() > 0.5) {
-            particle.style.background = '#ff00ff';
-            particle.style.boxShadow = '0 0 10px #ff00ff, 0 0 20px #ff00ff';
-        }
+        const size = Math.random() * 6 + 2;
+        const left = Math.random() * 100;
+        const animationDuration = Math.random() * 15 + 10;
+        const animationDelay = Math.random() * 10;
+        const color = Math.random() > 0.5 ? '#00ffff' : '#ff00ff';
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${left}%`;
+        particle.style.background = color;
+        particle.style.boxShadow = `0 0 ${size * 2}px ${color}`;
+        particle.style.animationDuration = `${animationDuration}s`;
+        particle.style.animationDelay = `${animationDelay}s`;
         
         container.appendChild(particle);
     }
 }
 
-function createBubbles() {
-    const container = document.getElementById('bubbles');
-    const bubbleCount = 15;
+// ========== 终端打字机效果 ==========
+function typeTerminal() {
+    const terminalContent = document.getElementById('terminal-content');
+    const lines = [
+        { type: 'prompt', text: 'whoami' },
+        { type: 'output', text: '袁沁 | 一个在数字海洋中游荡的灵魂' },
+        { type: 'blank' },
+        { type: 'prompt', text: 'cat /etc/interests.txt' },
+        { type: 'output', text: '🎹 钢琴 - 黑白键上的赛博朋克' },
+        { type: 'output', text: '🌊 深海迷航 - 压力越大，越要发光' },
+        { type: 'output', text: '🎵 音乐 - 频率与灵魂的共振实验' },
+        { type: 'blank' },
+        { type: 'prompt', text: 'echo $PHILOSOPHY' },
+        { type: 'output', text: '"生活就像潜水，有时候你会被压力压垮，但只要你继续发光，总能找到出路。"' },
+        { type: 'blank' },
+        { type: 'prompt', text: 'uptime' },
+        { type: 'output', text: '已运行 20+ 年，偶尔蓝屏，但总能重启' },
+        { type: 'blank' },
+        { type: 'prompt', text: 'sudo make coffee' },
+        { type: 'output', text: '☕ 正在酿造赛博咖啡... 完成！' },
+    ];
     
-    for (let i = 0; i < bubbleCount; i++) {
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
+    let delay = 0;
+    lines.forEach((line, index) => {
+        if (line.type === 'blank') {
+            delay += 200;
+            return;
+        }
         
-        const size = 10 + Math.random() * 30;
-        bubble.style.width = size + 'px';
-        bubble.style.height = size + 'px';
-        bubble.style.left = Math.random() * 100 + '%';
-        bubble.style.animationDuration = (8 + Math.random() * 10) + 's';
-        bubble.style.animationDelay = Math.random() * 10 + 's';
+        setTimeout(() => {
+            const lineElement = document.createElement('div');
+            lineElement.classList.add('terminal-line');
+            lineElement.style.animationDelay = '0s';
+            
+            if (line.type === 'prompt') {
+                lineElement.innerHTML = `<span class="prompt">yuanqin@cyber:~$ </span>${line.text}`;
+            } else {
+                lineElement.textContent = line.text;
+            }
+            
+            terminalContent.appendChild(lineElement);
+        }, delay);
         
-        container.appendChild(bubble);
-    }
+        delay += line.type === 'prompt' ? 800 : 400;
+    });
 }
 
-function createMatrixRain() {
-    const container = document.querySelector('.matrix-rain');
-    const canvas = document.createElement('canvas');
-    container.appendChild(canvas);
+// ========== 88键钢琴交互 ==========
+class Piano {
+    constructor() {
+        this.audioContext = null;
+        this.whiteKeyWidth = 36;
+        this.blackKeyWidth = 24;
+        this.isMouseDown = false;
+        this.buildPiano();
+        this.initKeyboard();
+    }
     
-    const ctx = canvas.getContext('2d');
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
-    
-    const chars = '袁沁ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
-    
-    function draw() {
-        ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = '#00ffff';
-        ctx.font = fontSize + 'px monospace';
-        
-        for (let i = 0; i < drops.length; i++) {
-            const text = chars[Math.floor(Math.random() * chars.length)];
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
+    initAudioContext() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
         }
     }
     
-    setInterval(draw, 33);
+    // 钢琴音色合成：基频 + 泛音列 + ADSR包络
+    playNote(midi) {
+        this.initAudioContext();
+        
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        const freq = 440 * Math.pow(2, (midi - 69) / 12);
+        
+        // 创建主增益节点
+        const masterGain = ctx.createGain();
+        masterGain.connect(ctx.destination);
+        
+        // ADSR包络 - 钢琴特性：快速起音，自然衰减
+        const attack = 0.005;
+        const decay = 0.3;
+        const sustainLevel = 0.25;
+        const release = 1.2;
+        const peakGain = 0.28;
+        
+        masterGain.gain.setValueAtTime(0, now);
+        masterGain.gain.linearRampToValueAtTime(peakGain, now + attack);
+        masterGain.gain.exponentialRampToValueAtTime(sustainLevel * peakGain, now + attack + decay);
+        masterGain.gain.exponentialRampToValueAtTime(0.001, now + attack + decay + release);
+        
+        // 泛音列模拟钢琴音色
+        const harmonics = [
+            { ratio: 1, gain: 1.0 },    // 基频
+            { ratio: 2, gain: 0.5 },    // 2倍频
+            { ratio: 3, gain: 0.25 },   // 3倍频
+            { ratio: 4, gain: 0.12 },   // 4倍频
+            { ratio: 5, gain: 0.06 },   // 5倍频
+            { ratio: 6, gain: 0.03 },   // 6倍频
+        ];
+        
+        const oscillators = [];
+        
+        harmonics.forEach(h => {
+            const osc = ctx.createOscillator();
+            const oscGain = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.value = freq * h.ratio;
+            
+            // 高频泛音衰减更快
+            const harmonicRelease = release / (1 + h.ratio * 0.3);
+            oscGain.gain.setValueAtTime(h.gain, now);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, now + attack + decay + harmonicRelease);
+            
+            osc.connect(oscGain);
+            oscGain.connect(masterGain);
+            
+            osc.start(now);
+            osc.stop(now + attack + decay + harmonicRelease + 0.1);
+            
+            oscillators.push(osc);
+        });
+    }
+    
+    buildPiano() {
+        const container = document.getElementById('pianoKeys');
+        if (!container) return;
+        
+        const pianoStartMidi = 21; // A0
+        const pianoEndMidi = 108;  // C8
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const blackIndices = [1, 3, 6, 8, 10];
+        
+        // 键盘映射: 1~m 按键盘物理排列顺序
+        const keys = '1234567890qwertyuiopasdfghjklzxcvbnm';
+        this.keyMap = {};
+        const keyLabels = {};
+        const kbStartMidi = 60; // C4
+        for (let i = 0; i < keys.length; i++) {
+            this.keyMap[keys[i]] = kbStartMidi + i;
+            keyLabels[kbStartMidi + i] = keys[i];
+        }
+        
+        let whiteCount = 0;
+        for (let m = pianoStartMidi; m <= pianoEndMidi; m++) {
+            if (!blackIndices.includes(m % 12)) whiteCount++;
+        }
+        
+        const whiteRow = document.createElement('div');
+        whiteRow.className = 'white-keys-row';
+        whiteRow.style.display = 'flex';
+        container.appendChild(whiteRow);
+        
+        const blackRow = document.createElement('div');
+        blackRow.className = 'black-keys-row';
+        blackRow.style.position = 'absolute';
+        blackRow.style.top = '0';
+        blackRow.style.left = '0';
+        blackRow.style.width = (whiteCount * this.whiteKeyWidth) + 'px';
+        blackRow.style.height = '140px';
+        blackRow.style.pointerEvents = 'none';
+        container.appendChild(blackRow);
+        
+        let whiteIndex = 0;
+        
+        for (let midi = pianoStartMidi; midi <= pianoEndMidi; midi++) {
+            const noteIdx = midi % 12;
+            const octave = Math.floor(midi / 12) - 1;
+            const isBlack = blackIndices.includes(noteIdx);
+            const noteName = noteNames[noteIdx] + octave;
+            
+            const key = document.createElement('div');
+            key.dataset.midi = midi;
+            key.dataset.note = noteName;
+            
+            if (!isBlack) {
+                key.className = 'key white';
+                let label = noteName;
+                if (keyLabels[midi]) {
+                    label += `<br><span class="key-label">${keyLabels[midi].toUpperCase()}</span>`;
+                }
+                key.innerHTML = label;
+                whiteRow.appendChild(key);
+                whiteIndex++;
+            } else {
+                key.className = 'key black';
+                const leftPos = whiteIndex * this.whiteKeyWidth - this.blackKeyWidth / 2;
+                key.style.left = leftPos + 'px';
+                key.style.pointerEvents = 'auto';
+                if (keyLabels[midi]) {
+                    key.innerHTML = `<span class="key-label-black">${keyLabels[midi].toUpperCase()}</span>`;
+                }
+                blackRow.appendChild(key);
+            }
+            
+            key.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.triggerKey(key);
+            });
+            
+            key.addEventListener('mouseenter', (e) => {
+                if (this.isMouseDown) {
+                    e.stopPropagation();
+                    this.triggerKey(key);
+                }
+            });
+            
+            key.addEventListener('mouseleave', (e) => {
+                e.stopPropagation();
+            });
+        }
+        
+        document.addEventListener('mouseup', () => {
+            this.isMouseDown = false;
+        });
+        
+        container.addEventListener('mousedown', () => {
+            this.isMouseDown = true;
+        });
+        
+        let lastTouched = null;
+        
+        const handleTouch = (e) => {
+            e.preventDefault();
+            for (const touch of e.changedTouches) {
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (el && el.closest && el.closest('.key')) {
+                    const keyEl = el.closest('.key');
+                    if (keyEl !== lastTouched) {
+                        this.triggerKey(keyEl);
+                        lastTouched = keyEl;
+                    }
+                }
+            }
+        };
+        
+        container.addEventListener('touchstart', handleTouch, { passive: false });
+        container.addEventListener('touchmove', handleTouch, { passive: false });
+        container.addEventListener('touchend', () => {
+            lastTouched = null;
+        });
+    }
+    
+    triggerKey(keyEl) {
+        const midi = parseInt(keyEl.dataset.midi);
+        this.playNote(midi);
+    }
+    
+    initKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            const k = e.key.toLowerCase();
+            const midi = this.keyMap[k];
+            if (midi !== undefined) {
+                this.playNote(midi);
+                
+                // 同步高亮对应琴键
+                const keyEl = document.querySelector(`.key[data-midi="${midi}"]`);
+                if (keyEl) keyEl.classList.add('active');
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            const k = e.key.toLowerCase();
+            const midi = this.keyMap[k];
+            if (midi !== undefined) {
+                const keyEl = document.querySelector(`.key[data-midi="${midi}"]`);
+                if (keyEl) keyEl.classList.remove('active');
+            }
+        });
+    }
 }
 
-function addPianoInteraction() {
-    const keys = document.querySelectorAll('.piano-keys .key');
+// ========== 爱好卡片导航 ==========
+function setupHobbyCards() {
+    const cards = document.querySelectorAll('.hobby-card');
     
-    keys.forEach((key) => {
-        key.addEventListener('click', () => {
-            const noteIndex = parseInt(key.dataset.note);
-            playNote(noteIndex);
-            key.style.transform = 'scaleY(0.95)';
-            setTimeout(() => {
-                key.style.transform = 'scaleY(1)';
-            }, 100);
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            const target = card.dataset.target;
+            const targetSection = document.getElementById(target);
+            
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            }
         });
     });
 }
 
-function playNote(index) {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    const frequencies = [261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.00, 415.30, 440.00, 466.16, 493.88];
-    oscillator.frequency.value = frequencies[index % frequencies.length];
-    
-    oscillator.type = 'sine';
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
-}
-
-function addScrollAnimations() {
-    const sections = document.querySelectorAll('.section');
+// ========== 深海深度计动画 ==========
+function animateDepthMeter() {
+    const depthFill = document.querySelector('.depth-fill');
+    const depthValue = document.querySelector('.depth-value');
+    const targetDepth = 20000;
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                // 动画填充深度条
+                let currentDepth = 0;
+                const interval = setInterval(() => {
+                    currentDepth += 200;
+                    if (currentDepth >= targetDepth) {
+                        currentDepth = targetDepth;
+                        clearInterval(interval);
+                    }
+                    
+                    const percentage = (currentDepth / targetDepth) * 100;
+                    depthFill.style.width = `${percentage}%`;
+                    depthValue.textContent = `${currentDepth}m / ${targetDepth}m`;
+                }, 50);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    observer.observe(document.getElementById('ocean'));
+}
+
+// ========== 滚动动画 (Intersection Observer) ==========
+function setupScrollAnimations() {
+    const fadeElements = document.querySelectorAll('.terminal, .hobby-card, .piano-container, .depth-meter, .wave-container');
+    
+    fadeElements.forEach(el => {
+        el.classList.add('fade-in');
+    });
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.1 });
     
-    sections.forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(50px)';
-        section.style.transition = 'all 0.6s ease-out';
-        observer.observe(section);
+    fadeElements.forEach(el => {
+        observer.observe(el);
     });
 }
 
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
-
-let depth = 0;
-function addDepthMeterInteraction() {
-    const depthMeter = document.querySelector('.depth-meter');
-    const depthValue = document.getElementById('depthValue');
-    const depthProgress = document.getElementById('depthProgress');
+// ========== 科乐美秘籍彩蛋 ==========
+function setupKonamiCode() {
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    let currentIndex = 0;
     
-    if (depthMeter && depthValue && depthProgress) {
-        depthMeter.addEventListener('click', () => {
-            depth += Math.floor(Math.random() * 200) + 50;
-            if (depth > 4500) depth = 0;
+    document.addEventListener('keydown', (e) => {
+        if (e.key === konamiCode[currentIndex]) {
+            currentIndex++;
             
-            depthValue.textContent = depth + 'm';
-            depthProgress.style.width = (depth / 4500 * 100) + '%';
-            
-            if (depth >= 4500) {
-                setTimeout(() => {
-                    alert('🌊 恭喜！你已到达马里亚纳海沟底部！利维坦向你发出了钢琴演奏邀请！');
-                }, 300);
-            } else if (depth >= 2000) {
-                depthValue.style.color = '#ff00ff';
-            } else if (depth >= 1000) {
-                depthValue.style.color = '#00ffff';
+            if (currentIndex === konamiCode.length) {
+                activateEasterEgg();
+                currentIndex = 0;
             }
-        });
-    }
+        } else {
+            currentIndex = 0;
+        }
+    });
 }
 
-let konamiCode = [];
-const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-
-document.addEventListener('keydown', (e) => {
-    konamiCode.push(e.key);
-    konamiCode = konamiCode.slice(-10);
+function activateEasterEgg() {
+    // 彩虹色相旋转
+    document.body.classList.add('easter-egg-active');
     
-    if (konamiCode.join(',') === konamiSequence.join(',')) {
-        activateKonami();
-    }
-});
-
-function activateKonami() {
-    const body = document.body;
-    body.style.animation = 'rainbow 2s linear infinite';
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes rainbow {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
+    // 创建彩色纸屑
+    const colors = ['#00ffff', '#ff00ff', '#00ff00', '#ff5f56', '#ffbd2e', '#0066ff'];
     
     for (let i = 0; i < 50; i++) {
         setTimeout(() => {
-            createConfetti();
-        }, i * 100);
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.width = `${Math.random() * 10 + 5}px`;
+            confetti.style.height = `${Math.random() * 10 + 5}px`;
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }, i * 50);
     }
     
+    // 5秒后恢复正常
     setTimeout(() => {
-        body.style.animation = '';
-        style.remove();
+        document.body.classList.remove('easter-egg-active');
     }, 5000);
 }
 
-function createConfetti() {
-    const confetti = document.createElement('div');
-    confetti.style.cssText = `
-        position: fixed;
-        width: 10px;
-        height: 10px;
-        background: ${['#ff00ff', '#00ffff', '#ffff00', '#00ff00', '#ff0000'][Math.floor(Math.random() * 5)]};
-        left: ${Math.random() * 100}%;
-        top: -10px;
-        z-index: 9999;
-        pointer-events: none;
-        border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
-    `;
-    document.body.appendChild(confetti);
-    
-    const duration = 2000 + Math.random() * 1000;
-    const xOffset = (Math.random() - 0.5) * 200;
-    
-    confetti.animate([
-        { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
-        { transform: `translateY(100vh) translateX(${xOffset}px) rotate(720deg)`, opacity: 0 }
-    ], {
-        duration: duration,
-        easing: 'ease-in'
-    }).onfinish = () => confetti.remove();
-}
-
-console.log('%c欢迎来到袁沁的个人世界！', 'font-size: 24px; color: #00ffff; text-shadow: 2px 2px #ff00ff;');
-console.log('%c试试输入科乐美秘籍：↑↑↓↓←→←→BA', 'font-size: 14px; color: #ff00ff;');
-console.log('%c点击深海迷航深度计，开始你的深海之旅！', 'font-size: 12px; color: #0066ff;');
+// ========== 初始化 ==========
+document.addEventListener('DOMContentLoaded', () => {
+    createParticles();
+    typeTerminal();
+    const piano = new Piano();
+    setupHobbyCards();
+    animateDepthMeter();
+    setupScrollAnimations();
+    setupKonamiCode();
+});
